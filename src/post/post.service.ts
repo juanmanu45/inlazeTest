@@ -4,7 +4,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 import { Repository, TypeORMError } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PostService {
@@ -12,10 +12,17 @@ export class PostService {
   constructor(
     @InjectRepository(Post)
     private postRepo: Repository<Post>,
+    private readonly userService: UserService
   ) {};
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto,user:any) {
     try {
+     
+      const userObj = await this.userService.findOneEmail(user.email);
+
+      if(userObj!){
+       createPostDto.user=userObj;
+      }
       const post = this.postRepo.create(createPostDto);
       await this.postRepo.save(post);
       return post;
@@ -25,8 +32,12 @@ export class PostService {
     }
   }
 
-  findAll(): Promise<Post[]> {
-    return this.postRepo.find();
+  async findAll(): Promise<Post[]> {
+    return await this.postRepo.createQueryBuilder('post')
+    .innerJoinAndSelect('post.user', 'user')
+    .select('post') 
+    .addSelect('user.fullName') 
+    .getMany();
   }
 
   async findOne(id: number) {

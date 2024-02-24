@@ -4,6 +4,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { GetUser } from 'src/auth/constans';
+import { User } from 'src/user/entities/user.entity';
 
 @Controller('post')
 export class PostController {
@@ -11,16 +13,17 @@ export class PostController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  create(@Body() createPostDto: CreatePostDto,@GetUser() user: User) {
+    return this.postService.create(createPostDto,user);
   }
 
-  
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.postService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postService.findOne(+id);

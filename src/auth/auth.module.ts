@@ -6,8 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { jwtConstants } from './constans';
 import { AuthController } from './auth.controller';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth.guard';
+import { UserService } from 'src/user/user.service';
+
 
 
 @Module({
@@ -18,7 +18,7 @@ import { AuthGuard } from './auth.guard';
       signOptions: { expiresIn: '300s' },
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService,UserService],
   controllers: [AuthController],
 })
 export class AuthModule {}

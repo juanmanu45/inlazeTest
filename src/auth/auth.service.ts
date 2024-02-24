@@ -5,16 +5,17 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './login.dto';
+import { UserService } from 'src/user/user.service';
 
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,private jwtService: JwtService
+    private userService:UserService,private jwtService: JwtService
   ) {}
 
   async signIn(logInDto: LoginDto): Promise<{ access_token: string }> {
-    const user = await this.usersRepository.findOneBy({ email: logInDto.email });
+    const user = await this.userService.findOneEmail(logInDto.email);
     if (!user) {
       throw new NotFoundException(`Usuario con Email ${logInDto.email} no encontrado`);
     }
